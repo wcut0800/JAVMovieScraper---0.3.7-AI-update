@@ -274,4 +274,17 @@ public class MoviescraperPreferences extends Settings {
 	public void setCookieJar(String preferenceValue) {
 		setStringValue(Key.cookieJar, preferenceValue);
 	}
+
+	/**
+	 * Applies settings optimized for Plex Media Server compatibility.
+	 * Uses file naming conventions expected by the XBMCnfoMoviesImporter agent
+	 * and Plex's Local Media Assets.
+	 */
+	public void applyPlexMediaServerSettings() {
+		setNfoNamedMovieDotNfo(true);           // movie.nfo - preferred by XBMCnfoMoviesImporter
+		setNoMovieNameInImageFiles(true);       // poster.jpg, fanart.jpg - Plex Local Media Assets format
+		setWriteFanartAndPostersPreference(true);
+		setCreateFolderJpgEnabledPreference(true); // folder.jpg - used by XBMCnfoMoviesImporter as poster fallback
+		setWriteThumbTagsForPosterAndFanartToNfo(true);
+	}
 }

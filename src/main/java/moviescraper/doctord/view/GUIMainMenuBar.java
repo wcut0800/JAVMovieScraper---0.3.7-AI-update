@@ -15,6 +15,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import moviescraper.doctord.controller.BrowseDirectoryAction;
@@ -47,6 +48,13 @@ public class GUIMainMenuBar extends JMenuBar {
 	private GUIMain guiMain;
 
 	private JMenuItem writeFileMenuItem;
+
+	/** Checkboxes affected by Apply Plex Media Server Settings - refreshed after preset is applied */
+	private JCheckBoxMenuItem writeFanartAndPostersCheckbox;
+	private JCheckBoxMenuItem createFolderJpgCheckbox;
+	private JCheckBoxMenuItem noMovieNameInImageFilesCheckbox;
+	private JCheckBoxMenuItem nfoNamedMovieDotNfoCheckbox;
+	private JCheckBoxMenuItem writeThumbTagsForPosterAndFanartToNfoCheckbox;
 
 	public GUIMainMenuBar(GUIMain guiMain) {
 		this.preferences = guiMain.getPreferences();
@@ -98,7 +106,29 @@ public class GUIMainMenuBar extends JMenuBar {
 			preferenceMenu.add(createModifiyScrapedResultsByMenu());
 			preferenceMenu.add(createRenamingMenu());
 			preferenceMenu.add(createCleanUpFileNameMenu());
+			preferenceMenu.addSeparator();
+			preferenceMenu.add(createPlexMediaServerPresetItem());
 		}
+	}
+
+	private JMenuItem createPlexMediaServerPresetItem() {
+		JMenuItem plexPreset = new JMenuItem("Apply Plex Media Server Settings");
+		plexPreset.setToolTipText("Configure file naming for Plex Media Server (movie.nfo, poster.jpg, fanart.jpg)");
+		plexPreset.addActionListener(e -> {
+			getPreferences().applyPlexMediaServerSettings();
+			refreshPlexAffectedCheckboxStates();
+			JOptionPane.showMessageDialog(guiMain,
+				"Plex Media Server settings have been applied:\n\n" +
+				"• movie.nfo (NFO file naming)\n" +
+				"• poster.jpg and fanart.jpg (image file naming)\n" +
+				"• folder.jpg (enabled)\n" +
+				"• Write fanart and poster (enabled)\n\n" +
+				"Remember to install the XBMCnfoMoviesImporter agent in Plex\n" +
+				"and enable Local Media Assets in your library settings.",
+				"Plex Settings Applied",
+				JOptionPane.INFORMATION_MESSAGE);
+		});
+		return plexPreset;
 	}
 
 	private JMenu createCleanUpFileNameMenu() {
@@ -190,9 +220,9 @@ public class GUIMainMenuBar extends JMenuBar {
 		JMenu submenu = new JMenu("File Creation");
 
 		//Checkbox for writing fanart and poster
-		JCheckBoxMenuItem writeFanartAndPosters = createCheckBoxMenuItem("Write Fanart and Poster Images", b -> getPreferences().setWriteFanartAndPostersPreference(b),
+		writeFanartAndPostersCheckbox = createCheckBoxMenuItem("Write Fanart and Poster Images", b -> getPreferences().setWriteFanartAndPostersPreference(b),
 		        () -> getPreferences().getWriteFanartAndPostersPreference());
-		submenu.add(writeFanartAndPosters);
+		submenu.add(writeFanartAndPostersCheckbox);
 
 		//Checkbox for overwriting writing actors to .actor folder	
 		JCheckBoxMenuItem writeActorImages = createCheckBoxMenuItem("Write Actor Images", b -> getPreferences().setDownloadActorImagesToActorFolderPreference(b),
@@ -205,9 +235,9 @@ public class GUIMainMenuBar extends JMenuBar {
 		submenu.add(scrapeExtraFanart);
 
 		//Checkbox for also creating folder.jpg	in addition to the poster file jpg	
-		JCheckBoxMenuItem createFolderJpg = createCheckBoxMenuItem("Create folder.jpg for Each Folder", b -> getPreferences().setCreateFolderJpgEnabledPreference(b),
+		createFolderJpgCheckbox = createCheckBoxMenuItem("Create folder.jpg for Each Folder", b -> getPreferences().setCreateFolderJpgEnabledPreference(b),
 		        () -> getPreferences().getCreateFolderJpgEnabledPreference());
-		submenu.add(createFolderJpg);
+		submenu.add(createFolderJpgCheckbox);
 
 		//Checkbox for writing the trailer to file
 		JCheckBoxMenuItem writeTrailerToFile = createCheckBoxMenuItem("Download and Write Trailer To File (Warning: Slow)", b -> getPreferences().setWriteTrailerToFile(b),
@@ -220,21 +250,34 @@ public class GUIMainMenuBar extends JMenuBar {
 		submenu.add(overwriteFanartAndPosters);
 
 		//Checkbox for using fanart.jpg and poster.jpg, not moviename-fanart.jpg and moviename-poster.jpg
-		JCheckBoxMenuItem noMovieNameInImageFiles = createCheckBoxMenuItem("Save poster and fanart as fanart.jpg and poster.jpg instead of moviename-fanart.jpg and moviename-poster.jpg",
+		noMovieNameInImageFilesCheckbox = createCheckBoxMenuItem("Save poster and fanart as fanart.jpg and poster.jpg instead of moviename-fanart.jpg and moviename-poster.jpg",
 		        b -> getPreferences().setNoMovieNameInImageFiles(b), () -> getPreferences().getNoMovieNameInImageFiles());
-		submenu.add(noMovieNameInImageFiles);
+		submenu.add(noMovieNameInImageFilesCheckbox);
 
 		//Checkbox for naming .nfo file movie.nfo instead of using movie name in file
-		JCheckBoxMenuItem nfoNamedMovieDotNfo = createCheckBoxMenuItem(".nfo file named movie.nfo instead of using movie name", b -> getPreferences().setNfoNamedMovieDotNfo(b),
+		nfoNamedMovieDotNfoCheckbox = createCheckBoxMenuItem(".nfo file named movie.nfo instead of using movie name", b -> getPreferences().setNfoNamedMovieDotNfo(b),
 		        () -> getPreferences().getNfoNamedMovieDotNfo());
-		submenu.add(nfoNamedMovieDotNfo);
+		submenu.add(nfoNamedMovieDotNfoCheckbox);
 
 		//Checkbox for whether to write the <thumb> tags into the nfo file
-		JCheckBoxMenuItem writeThumbTagsForPosterAndFanartToNfo = createCheckBoxMenuItem("Write <thumb> tags for poster and fanart into .nfo file",
+		writeThumbTagsForPosterAndFanartToNfoCheckbox = createCheckBoxMenuItem("Write <thumb> tags for poster and fanart into .nfo file",
 		        b -> getPreferences().setWriteThumbTagsForPosterAndFanartToNfo(b), () -> getPreferences().getWriteThumbTagsForPosterAndFanartToNfo());
-		submenu.add(writeThumbTagsForPosterAndFanartToNfo);
+		submenu.add(writeThumbTagsForPosterAndFanartToNfoCheckbox);
 
 		return submenu;
+	}
+
+	private void refreshPlexAffectedCheckboxStates() {
+		if (writeFanartAndPostersCheckbox != null)
+			writeFanartAndPostersCheckbox.setState(getPreferences().getWriteFanartAndPostersPreference());
+		if (createFolderJpgCheckbox != null)
+			createFolderJpgCheckbox.setState(getPreferences().getCreateFolderJpgEnabledPreference());
+		if (noMovieNameInImageFilesCheckbox != null)
+			noMovieNameInImageFilesCheckbox.setState(getPreferences().getNoMovieNameInImageFiles());
+		if (nfoNamedMovieDotNfoCheckbox != null)
+			nfoNamedMovieDotNfoCheckbox.setState(getPreferences().getNfoNamedMovieDotNfo());
+		if (writeThumbTagsForPosterAndFanartToNfoCheckbox != null)
+			writeThumbTagsForPosterAndFanartToNfoCheckbox.setState(getPreferences().getWriteThumbTagsForPosterAndFanartToNfo());
 	}
 
 	private void initializeSettingsMenu() {

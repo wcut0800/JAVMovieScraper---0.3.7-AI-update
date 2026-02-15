@@ -100,8 +100,8 @@ This attempts to rename a file to make it more likely a match will be found with
 The [list of site name abbreviations](https://raw.githubusercontent.com/DoctorD1501/JAVMovieScraper/master/JAVMovieScraper/src/moviescraper/doctord/controller/releaserenamer/SiteNameAbbreviations.csv) still needs more work. Please consider contributing to this list if you use this feature and would like to see it work better! Note that the list of abbreviations usually contains a short 2-4 letter abbreviation as the second entry in the list. This is the abbreviation used in the scene release of the file.
 
 
-## What If I Use Plex?
-Kodi metadata is compatible with [Plex](https://plex.tv/) using the [XBMCnfoMovieImporter](https://forums.plex.tv/index.php/topic/38402-metadata-agents-for-exported-xbmc-library/) ([github link here](https://github.com/gboudreau/XBMCnfoMoviesImporter.bundle)).
+## What If I Use Plex Media Server?
+JAVMovieScraper outputs Kodi/XBMC NFO format compatible with [Plex](https://plex.tv/) when using the [XBMCnfoMoviesImporter](https://github.com/gboudreau/XBMCnfoMoviesImporter.bundle). Use **Preferences → Apply Plex Media Server Settings** for optimal file naming. Install via WebTools → Unsupported Appstore; enable Local Media Assets in Plex.
 
 ## Other Good Programs for Viewing/Browsing Kodi Scraped Files
 Try [Media Companion](https://mediacompanion.codeplex.com/). It's easier to use when sitting at a computer than Kodi because the interface is designed for keyboard & mouse use rather than a remote and large screen.
