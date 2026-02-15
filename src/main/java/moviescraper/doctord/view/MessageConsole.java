@@ -1,9 +1,15 @@
 package moviescraper.doctord.view;
 
-import java.io.*;
-import java.awt.*;
-import javax.swing.event.*;
-import javax.swing.text.*;
+import java.awt.Color;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.lang.ref.Cleaner;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 
 /*
  * Create a simple console to display text messages.
@@ -37,11 +43,19 @@ public class MessageConsole {
 	 * The messages can either be appended to the end of the console or
 	 * inserted as the first line of the console.
 	 */
+	private static final Cleaner CLEANER = Cleaner.create();
+
 	public MessageConsole(JTextComponent textComponent, boolean isAppend) {
 		this.textComponent = textComponent;
 		this.document = textComponent.getDocument();
 		this.isAppend = isAppend;
 		textComponent.setEditable(false);
+		CLEANER.register(this, () -> {
+			if (out != null)
+				out.close();
+			if (err != null)
+				err.close();
+		});
 	}
 
 	/*
@@ -101,17 +115,6 @@ public class MessageConsole {
 
 		limitLinesListener = new LimitLinesDocumentListener(lines, isAppend);
 		document.addDocumentListener(limitLinesListener);
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		try {
-			//make sure the PrintStream objects get closed before this object goes bye-bye
-			out.close();
-			err.close();
-		} finally {
-			super.finalize();
-		}
 	}
 
 	/*

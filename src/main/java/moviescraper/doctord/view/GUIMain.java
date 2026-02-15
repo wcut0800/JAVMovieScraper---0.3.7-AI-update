@@ -711,10 +711,6 @@ public class GUIMain {
 	}
 
 	public AllAmalgamationOrderingPreferences getAllAmalgamationOrderingPreferences() {
-		//rereading from file in case external program somehow decides to change this file before we get it.
-		//also this fixes a bug where canceling a scrape somehow corrupted the variable and caused an error when opening the
-		//amalgamation settings dialog
-		allAmalgamationOrderingPreferences = allAmalgamationOrderingPreferences.initializeValuesFromPreferenceFile();
 		return allAmalgamationOrderingPreferences;
 	}
 

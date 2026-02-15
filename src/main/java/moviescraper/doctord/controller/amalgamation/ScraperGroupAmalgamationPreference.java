@@ -74,6 +74,11 @@ public class ScraperGroupAmalgamationPreference {
 		return overallOrdering;
 	}
 
+	/** For persistence - returns custom orderings by field name, or empty map if none. */
+	public Map<String, DataItemSourceAmalgamationPreference> getCustomOrderingsMap() {
+		return customAmalgamationOrderPerField != null ? customAmalgamationOrderPerField : java.util.Collections.emptyMap();
+	}
+
 	public void setCustomOrderingForField(Field field, DataItemSourceAmalgamationPreference newValue) {
 		if (customAmalgamationOrderPerField == null) {
 			customAmalgamationOrderPerField = new Hashtable<>(Movie.class.getDeclaredFields().length);

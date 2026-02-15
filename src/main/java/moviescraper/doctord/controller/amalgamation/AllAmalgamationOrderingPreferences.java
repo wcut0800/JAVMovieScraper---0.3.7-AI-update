@@ -1,17 +1,9 @@
 package moviescraper.doctord.controller.amalgamation;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Map;
-
-import com.cedarsoftware.util.io.JsonIoException;
-import com.cedarsoftware.util.io.JsonReader;
-import com.cedarsoftware.util.io.JsonWriter;
 
 import moviescraper.doctord.controller.siteparsingprofile.SiteParsingProfile.ScraperGroupName;
 import moviescraper.doctord.controller.siteparsingprofile.specific.ActionJavParsingProfile;
@@ -29,7 +21,6 @@ import moviescraper.doctord.controller.siteparsingprofile.specific.TheMovieDatab
 public class AllAmalgamationOrderingPreferences {
 
 	Map<ScraperGroupName, ScraperGroupAmalgamationPreference> allAmalgamationOrderingPreferences;
-	private static final String settingsFileName = "AmalgamationSettings.json";
 
 	public AllAmalgamationOrderingPreferences() {
 		allAmalgamationOrderingPreferences = new Hashtable<>();
@@ -62,38 +53,34 @@ public class AllAmalgamationOrderingPreferences {
 	}
 
 	public AllAmalgamationOrderingPreferences initializeValuesFromPreferenceFile() {
-
+		String settingsFileName = AmalgamationPreferencesPersistence.getSettingsFileName();
 		File inputFile = new File(settingsFileName);
 		if (!inputFile.exists()) {
 			boolean saveToDisk = true;
 			initializeDefaultPreferences(saveToDisk);
 			System.out.println("No file existed for amalgamation preferences. Used default preferences.");
 			return this;
-		} else {
-			try (InputStream inputFromFile = new FileInputStream(settingsFileName); JsonReader jr = new JsonReader(inputFromFile);) {
-
-				AllAmalgamationOrderingPreferences jsonObject = (AllAmalgamationOrderingPreferences) jr.readObject();
-				//System.out.println("Read in amalgamation preferences from " + settingsFileName);
-				return jsonObject;
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (JsonIoException e) {
-				System.out.println("Preference file is not compatible between versions - reinitializing preference file");
-				initializeDefaultPreferences(true);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
+		try {
+			AllAmalgamationOrderingPreferences loaded = AmalgamationPreferencesPersistence.load(inputFile);
+			if (loaded != null && !loaded.getAllAmalgamationOrderingPreferences().isEmpty()) {
+				this.allAmalgamationOrderingPreferences = loaded.getAllAmalgamationOrderingPreferences();
+				return this;
+			}
+		} catch (Exception e) {
+			System.out.println("Preference file is not compatible between versions - reinitializing preference file: " + e.getMessage());
+			initializeDefaultPreferences(true);
+			return this;
+		}
+		initializeDefaultPreferences(true);
 		return this;
 	}
 
 	public void saveToPreferencesFile() {
-		try (FileOutputStream outputStream = new FileOutputStream(settingsFileName); JsonWriter jw = new JsonWriter(outputStream);) {
-			jw.write(this);
-			System.out.println("Saved amalgamation preferences to " + settingsFileName);
+		try {
+			AmalgamationPreferencesPersistence.save(this, new File(AmalgamationPreferencesPersistence.getSettingsFileName()));
+			System.out.println("Saved amalgamation preferences to " + AmalgamationPreferencesPersistence.getSettingsFileName());
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}
