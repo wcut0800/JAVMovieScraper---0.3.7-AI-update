@@ -65,8 +65,6 @@ public class AsyncImageComponent extends JPanel implements ImageConsumer, MouseL
 
 		setURLFromThumb();
 		getReferrerURLFromThumb();
-		//System.out.println("ViewerURL: " + viewerUrl);
-		//System.out.println("ThumbURL: " + url);
 		new ImageLoader(this, url, referrerURL, thumb == null ? false : thumb.isModified()).execute();
 	}
 
@@ -248,8 +246,6 @@ public class AsyncImageComponent extends JPanel implements ImageConsumer, MouseL
 				} catch (Throwable t) {
 					System.out.println("Cannot load image: " + t.getMessage());
 				}
-
-				// System.out.println("Image URL:" + url + "        Viewer: " + viewerUrl);
 
 				if (isImageModified) {
 					pictureLoaded = Thumb.convertToBufferedImage(pictureLoaded);

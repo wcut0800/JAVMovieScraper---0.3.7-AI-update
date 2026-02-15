@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -40,8 +40,18 @@ import moviescraper.doctord.model.preferences.MoviescraperPreferences;
 import moviescraper.doctord.view.GUIMain;
 import org.apache.commons.io.FileUtils;
 
+/**
+ * Entry point for JAVMovieScraper. Launches the GUI when no arguments are provided,
+ * or runs command-line operations (scrape, rename, filename cleanup) when arguments are given.
+ */
 public class Main {
 
+	/**
+	 * Entry point. With no arguments, starts the Swing GUI. With arguments, runs
+	 * the appropriate CLI operation (help, filenamecleanup, scrape, rename).
+	 *
+	 * @param args command line arguments; empty for GUI, or -help, -filenamecleanup, -scrape, -rename
+	 */
 	public static void main(String[] args) throws Exception {
 		long freeMem = Runtime.getRuntime().freeMemory();
 		long heapSize = Runtime.getRuntime().maxMemory();
@@ -94,7 +104,7 @@ public class Main {
 			options.addOption(scrapeUrl);
 			options.addOption(rename);
 
-			CommandLineParser parser = new BasicParser();
+			CommandLineParser parser = new DefaultParser();
 			try {
 				CommandLine line = parser.parse(options, args);
 
@@ -199,17 +209,15 @@ public class Main {
 						}
 
 						boolean wasCustomURLSet = false;
-						if (userProvidedURL != null && userProvidedURL.length() > 0) {
-							//TODO: validate this is a actually a URL and display an error message if it is not
-							//also maybe don't let them click OK if isn't a valid URL?
+						if (userProvidedURL != null && !userProvidedURL.trim().isEmpty()) {
 							try {
-								URL isAValidURL = new URL(userProvidedURL);
-								parsingProfile.setOverridenSearchResult(isAValidURL.toString());
+								URL url = new URL(userProvidedURL.trim());
+								parsingProfile.setOverridenSearchResult(url.toString());
 								wasCustomURLSet = true;
 							} catch (MalformedURLException e) {
-								e.printStackTrace();
+								System.err.println("Invalid URL provided: " + userProvidedURL);
+								System.err.println("Reason: " + e.getMessage());
 							}
-
 						}
 
 						Movie scrapedMovie = Movie.scrapeMovie(scrapeTargetToUse, parsingProfile, "", wasCustomURLSet);

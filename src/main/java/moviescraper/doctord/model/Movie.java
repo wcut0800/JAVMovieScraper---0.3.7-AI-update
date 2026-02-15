@@ -2,6 +2,7 @@ package moviescraper.doctord.model;
 
 import java.awt.image.RenderedImage;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -39,6 +40,11 @@ import moviescraper.doctord.model.dataitem.*;
 import moviescraper.doctord.model.dataitem.Runtime;
 import moviescraper.doctord.model.preferences.MoviescraperPreferences;
 
+/**
+ * Represents a movie with metadata (title, actors, posters, fanart, etc.) scraped from
+ * one or more sources. Can be serialized to Kodi/XBMC NFO format for use with Kodi,
+ * Plex (via XBMCnfoMoviesImporter), and compatible media servers.
+ */
 public class Movie {
 
 	/*
@@ -211,10 +217,11 @@ public class Movie {
 	}
 
 	/**
-	 * Create a movie by reading in a values from a nfo file created by previously scraping the movie and then writing the metadata out to the file
-	 * 
-	 * @param nfoFile
-	 * @throws IOException
+	 * Creates a Movie by reading an NFO file (Kodi/XBMC format) produced by a previous scrape.
+	 *
+	 * @param nfoFile the .nfo file to read
+	 * @return the parsed Movie, or null if the file is not valid Kodi XML format
+	 * @throws IOException if the file cannot be read
 	 */
 	public static Movie createMovieFromNfo(File nfoFile) throws IOException {
 		Movie movieFromNfo = null;
@@ -439,12 +446,24 @@ public class Movie {
 		}
 	}
 
+	/**
+	 * Writes movie metadata to disk as NFO (Kodi format), poster, fanart, folder.jpg,
+	 * and optionally extra fanart and actor images. File paths and behavior are controlled by preferences.
+	 *
+	 * @param nfoFile target NFO file
+	 * @param posterFile target poster image
+	 * @param fanartFile target fanart image
+	 * @param currentlySelectedFolderJpgFile target folder.jpg (may be null)
+	 * @param targetFolderForExtraFanartFolderAndActorFolder directory for extra fanart/actors (may be null)
+	 * @param trailerFile target trailer file (may be null)
+	 * @param preferences controls which files are written and naming conventions
+	 * @throws IOException if any file write fails
+	 */
 	public void writeToFile(File nfoFile, File posterFile, File fanartFile, File currentlySelectedFolderJpgFile, File targetFolderForExtraFanartFolderAndActorFolder, File trailerFile,
 	        MoviescraperPreferences preferences) throws IOException {
-		// Output the movie to XML using XStream and a proxy class to
-		// translate things to a format that Kodi expects
+		// Output the movie to XML using XStream and a proxy class to translate to Kodi format
 
-		//ID only appended if preference set and not already at the start of the title
+		// ID only appended if preference set and not already at the start of the title
 		if (!title.getTitle().startsWith(id.getId())) {
 			appendIDToStartOfTitle();
 		}
@@ -452,11 +471,10 @@ public class Movie {
 		String xml = new KodiXmlMovieBean(this).toXML();
 		// add the xml header since xstream doesn't do this
 		xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>" + "\n" + xml;
-		//System.out.println("Xml I am writing to file: \n" + xml);
 
 		if (nfoFile != null && xml.length() > 0)
 			nfoFile.delete();
-		FileUtils.writeStringToFile(nfoFile, xml, org.apache.commons.lang3.CharEncoding.UTF_8);
+		FileUtils.writeStringToFile(nfoFile, xml, StandardCharsets.UTF_8);
 
 		Thumb posterToSaveToDisk = null;
 		if (posters != null && posters.length > 0)
@@ -719,7 +737,6 @@ public class Movie {
 					for (File currentFile : directoryContentsOfAllFiles) {
 						if (currentFile.isFile()) {
 							String targetFileName = getUnstackedMovieName(currentFile) + extension;
-							//System.out.println("returning " + targetFileName);
 							return targetFileName;
 						}
 					}
@@ -778,7 +795,6 @@ public class Movie {
 			for (int i = 0; i < searchResults.length; i++) {
 				String urltoMatch = searchResults[i].getUrlPath().toLowerCase();
 				String idFromMovieFileToMatch = idFromMovieFile.toLowerCase().replaceAll("-", "");
-				//System.out.println("Comparing " + searchResults[i].toLowerCase() + " to " + idFromMovieFile.toLowerCase().replaceAll("-", ""));
 				if (urltoMatch.contains(idFromMovieFileToMatch)) {
 					//let's do some fuzzy logic searching to try to get the "best" match in case we got some that are pretty close
 					//and update the variables accordingly so we know what our best match so far is

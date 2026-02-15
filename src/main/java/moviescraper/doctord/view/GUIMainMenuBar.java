@@ -111,13 +111,19 @@ public class GUIMainMenuBar extends JMenuBar {
 		}
 	}
 
+	/**
+	 * Creates a menu item that applies Plex Media Server–optimized preferences and
+	 * refreshes the affected File Creation checkboxes so the UI reflects the new state.
+	 *
+	 * @return menu item for "Apply Plex Media Server Settings"
+	 */
 	private JMenuItem createPlexMediaServerPresetItem() {
 		JMenuItem plexPreset = new JMenuItem("Apply Plex Media Server Settings");
 		plexPreset.setToolTipText("Configure file naming for Plex Media Server (movie.nfo, poster.jpg, fanart.jpg)");
 		plexPreset.addActionListener(e -> {
 			getPreferences().applyPlexMediaServerSettings();
 			refreshPlexAffectedCheckboxStates();
-			JOptionPane.showMessageDialog(guiMain,
+			JOptionPane.showMessageDialog(guiMain.getFrmMoviescraper(),
 				"Plex Media Server settings have been applied:\n\n" +
 				"• movie.nfo (NFO file naming)\n" +
 				"• poster.jpg and fanart.jpg (image file naming)\n" +
@@ -267,6 +273,10 @@ public class GUIMainMenuBar extends JMenuBar {
 		return submenu;
 	}
 
+	/**
+	 * Updates the File Creation submenu checkboxes to match current preference values.
+	 * Called after applyPlexMediaServerSettings() so the UI reflects programmatic changes.
+	 */
 	private void refreshPlexAffectedCheckboxStates() {
 		if (writeFanartAndPostersCheckbox != null)
 			writeFanartAndPostersCheckbox.setState(getPreferences().getWriteFanartAndPostersPreference());
@@ -500,7 +510,6 @@ public class GUIMainMenuBar extends JMenuBar {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				new AboutDialog(guiMain.getFrmMoviescraper()).setVisible(true);
 			}
 		});
@@ -522,7 +531,6 @@ public class GUIMainMenuBar extends JMenuBar {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				new SettingsDialogJAVLibrary(guiMain.getFrmMoviescraper()).setVisible(true);
 			}
 		});

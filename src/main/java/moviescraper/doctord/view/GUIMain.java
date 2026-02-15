@@ -124,7 +124,6 @@ public class GUIMain {
 					//Prevent text area font from looking different than text field font
 					UIManager.getDefaults().put("TextArea.font", UIManager.getFont("TextField.font"));
 					GUIMain window = new GUIMain();
-					System.out.println("Gui Initialized");
 					window.frmMoviescraper.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();

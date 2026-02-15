@@ -2,7 +2,6 @@ configurations { codacy }
 
 repositories {
 	maven { url "https://jitpack.io" }
-	maven { url "http://dl.bintray.com/typesafe/maven-releases" }
 }
 
 dependencies {
@@ -11,7 +10,7 @@ dependencies {
 
 // Coverage can be send with the following command: gradle -PprojectToken="TOKEN" sendCoverageToCodacy
 task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
-	main = "com.codacy.CodacyCoverageReporter"
+	mainClass = "com.codacy.CodacyCoverageReporter"
 	classpath = configurations.codacy
 	args = [
 			"report",

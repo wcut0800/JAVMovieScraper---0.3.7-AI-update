@@ -15,16 +15,17 @@ import moviescraper.doctord.model.Movie;
 import moviescraper.doctord.model.preferences.MoviescraperPreferences;
 import moviescraper.doctord.view.GUIMain;
 
+/**
+ * Action that writes scraped movie metadata (NFO, poster, fanart, etc.) to disk for
+ * the currently selected movies. Runs on a background thread to avoid blocking the UI.
+ */
 public class WriteFileDataAction implements ActionListener {
 
-	/**
-	 * 
-	 */
 	private final GUIMain guiMain;
 	SwingWorker<Void, String> worker;
 
 	/**
-	 * @param guiMain
+	 * @param guiMain main window; provides selected movies and preferences
 	 */
 	public WriteFileDataAction(GUIMain guiMain) {
 		this.guiMain = guiMain;

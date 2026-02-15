@@ -92,7 +92,6 @@ public class ScraperProgressView extends JPanel {
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			//String propertyName = evt.getPropertyName();
-			//System.out.println("ScraperProgressPropertyChangeListener: property changed with name = " + propertyName + " and oldValue =  " + evt.getOldValue() + " and newValue = " + evt.getNewValue());
 			if (evt.getPropertyName().equals(ScrapeAmalgamatedMovieWorkerProperty.SCRAPED_MOVIE.toString())) {
 				@SuppressWarnings("unchecked")
 				List<Map<SiteParsingProfile, Movie>> newValue = (List<Map<SiteParsingProfile, Movie>>) evt.getNewValue();

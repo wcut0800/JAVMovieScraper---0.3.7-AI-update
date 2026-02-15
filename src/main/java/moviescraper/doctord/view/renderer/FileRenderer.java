@@ -38,7 +38,6 @@ public class FileRenderer extends DefaultListCellRenderer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//System.out.println("Setting Icon at " + System.currentTimeMillis());
 		//l.setIcon(FileSystemView.getFileSystemView().getSystemIcon(f));
 
 		if (pad) {
