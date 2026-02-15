@@ -203,8 +203,9 @@ public abstract class SiteParsingProfile implements DataItemSource {
 		String fileNameNoExtension;
 		if (file.isDirectory()) {
 			fileNameNoExtension = file.getName();
-		} else
+		} else {
 			fileNameNoExtension = FilenameUtils.removeExtension(file.getName());
+		}
 		if (file.getPath().endsWith(".nfo")) {
 			try {
 				Movie movie = Movie.createMovieFromNfo(file);
@@ -212,22 +213,35 @@ public abstract class SiteParsingProfile implements DataItemSource {
 			} catch (IOException ex) {
 				System.out.println("Cannot load this file as nfo. Try from filename");
 			}
-
 		}
-		String fileNameNoExtensionNoDiscNumber = stripDiscNumber(fileNameNoExtension);
-		String[] splitFileName = fileNameNoExtensionNoDiscNumber.split(" ");
-		String lastWord = "";
-		if (firstWordOfFileIsID && splitFileName.length > 0)
-			lastWord = splitFileName[0];
-		else
-			lastWord = splitFileName[splitFileName.length - 1];
 
-		//Some people like to enclose the ID number in parenthesis or brackets like this (ABC-123) or this [ABC-123] so this gets rid of that
-		//TODO: Maybe consolidate these lines of code using a single REGEX?
-		lastWord = lastWord.replace("(", "");
-		lastWord = lastWord.replace(")", "");
-		lastWord = lastWord.replace("[", "");
-		lastWord = lastWord.replace("]", "");
+		// FC2-PPV format: site@FC2-PPV-4792609 or FC2-PPV-4792609
+		Matcher fc2Matcher = Pattern.compile("(FC2-PPV-\\d+)", Pattern.CASE_INSENSITIVE).matcher(fileNameNoExtension);
+		if (fc2Matcher.find()) {
+			return fc2Matcher.group(1);
+		}
+
+		// American web format: "12.03 [Kink.com, Site.com] Actor One, Actor Two (Scene Title) [tags].mp4"
+		// Extract actors between ] and ( for search matching
+		Matcher americanMatcher = Pattern.compile("\\]\\s*([^[(]+?)\\s*\\(").matcher(fileNameNoExtension);
+		if (americanMatcher.find()) {
+			String extracted = americanMatcher.group(1).trim();
+			if (!extracted.isEmpty()) {
+				return extracted;
+			}
+		}
+
+		String fileNameNoExtensionNoDiscNumber = stripDiscNumber(fileNameNoExtension);
+		String[] splitFileName = fileNameNoExtensionNoDiscNumber.split("\\s+");
+		String lastWord = "";
+		if (firstWordOfFileIsID && splitFileName.length > 0) {
+			lastWord = splitFileName[0];
+		} else if (splitFileName.length > 0) {
+			lastWord = splitFileName[splitFileName.length - 1];
+		}
+
+		// Some people enclose the ID in parenthesis or brackets like (ABC-123) or [ABC-123]
+		lastWord = lastWord.replace("(", "").replace(")", "").replace("[", "").replace("]", "");
 		return lastWord;
 	}
 

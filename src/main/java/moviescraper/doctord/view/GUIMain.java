@@ -19,6 +19,7 @@ import moviescraper.doctord.controller.SelectFileListAction;
 import moviescraper.doctord.controller.amalgamation.AllAmalgamationOrderingPreferences;
 import moviescraper.doctord.model.IconCache;
 import moviescraper.doctord.model.Movie;
+import moviescraper.doctord.model.MovieFilenameFilter;
 import moviescraper.doctord.model.SearchResult;
 import moviescraper.doctord.model.dataitem.Actor;
 import moviescraper.doctord.model.preferences.GuiSettings;
@@ -439,31 +440,37 @@ public class GUIMain {
 	}
 
 	private File[] showFileListSorted(File currentlySelectedDirectory) {
-
-		File[] sortedList = currentlySelectedDirectory.listFiles();
-		//Make a comparator so we get alphabetic order, with all directories first, then all the files (Like Windows Explorer)
-		Comparator<File> comp = new Comparator<File>() {
-			@Override
-			public int compare(File file1, File file2) {
-				// Directory before non-directory
-				if (file1.isDirectory() && !file2.isDirectory()) {
-
-					return -1;
-				}
-				// Non-directory after directory
-				else if (!file1.isDirectory() && file2.isDirectory()) {
-
-					return 1;
-				}
-				// Alphabetic order otherwise
-				else {
-
-					return file1.compareTo(file2);
-				}
-			}
-		};
+		if (currentlySelectedDirectory == null || !currentlySelectedDirectory.isDirectory()) {
+			return new File[0];
+		}
+		File[] directChildren = currentlySelectedDirectory.listFiles();
+		if (directChildren == null) {
+			return new File[0];
+		}
+		List<File> allItems = new ArrayList<>();
+		collectFilesRecursively(currentlySelectedDirectory, allItems);
+		// Sort: directories first (by path), then files, both alphabetically by full path
+		Comparator<File> comp = Comparator.comparing(File::getAbsolutePath);
+		File[] sortedList = allItems.toArray(new File[0]);
 		Arrays.sort(sortedList, comp);
 		return sortedList;
+	}
+
+	/**
+	 * Recursively collects movie files from the given directory and all subdirectories.
+	 */
+	private void collectFilesRecursively(File directory, List<File> results) {
+		File[] children = directory.listFiles();
+		if (children == null) {
+			return;
+		}
+		for (File child : children) {
+			if (child.isDirectory()) {
+				collectFilesRecursively(child, results);
+			} else if (new MovieFilenameFilter().accept(directory, child.getName())) {
+				results.add(child);
+			}
+		}
 	}
 
 	public void clearAllFieldsOfFileDetailPanel() {
@@ -516,10 +523,10 @@ public class GUIMain {
 
 	public void updateActorsFolder() {
 		for (int movieNumberInList = 0; movieNumberInList < getCurrentlySelectedMovieFileList().size(); movieNumberInList++) {
-			if (getCurrentlySelectedMovieFileList().get(movieNumberInList).isDirectory()) {
-				currentlySelectedActorsFolderList.add(new File(getCurrentlySelectedMovieFileList().get(movieNumberInList).getPath() + File.separator + ".actors"));
-			} else if (getCurrentlySelectedMovieFileList().get(movieNumberInList).isFile()) {
-				currentlySelectedActorsFolderList.add(new File(getCurrentlySelectedDirectoryList().getPath() + File.separator + ".actors"));
+			File movieFileOrDir = getCurrentlySelectedMovieFileList().get(movieNumberInList);
+			File movieDir = movieFileOrDir.isDirectory() ? movieFileOrDir : movieFileOrDir.getParentFile();
+			if (movieDir != null) {
+				currentlySelectedActorsFolderList.add(new File(movieDir.getPath() + File.separator + ".actors"));
 			}
 		}
 	}
