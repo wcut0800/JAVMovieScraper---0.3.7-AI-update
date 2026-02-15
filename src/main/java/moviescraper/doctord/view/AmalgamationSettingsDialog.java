@@ -28,7 +28,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import moviescraper.doctord.controller.UtilityFunctions;
 import moviescraper.doctord.controller.amalgamation.AllAmalgamationOrderingPreferences;
 import moviescraper.doctord.controller.amalgamation.DataItemSourceAmalgamationPreference;
 import moviescraper.doctord.controller.amalgamation.ScraperGroupAmalgamationPreference;
@@ -86,7 +85,7 @@ public class AmalgamationSettingsDialog {
 		panelLayoutManager.setVgap(layoutVerticalGap);
 		this.panel = new JPanel(panelLayoutManager);
 		this.amalgamationPreferences = amalgamationPreferences;
-		this.amalgamationPreferencesOriginal = (AllAmalgamationOrderingPreferences) UtilityFunctions.cloneObject(this.amalgamationPreferences);
+		this.amalgamationPreferencesOriginal = this.amalgamationPreferences.deepCopy();
 
 		panelHeaderSpecificFieldAmalgamationPreference = new JLabel("Specific Field", SwingConstants.CENTER);
 

@@ -41,6 +41,18 @@ public class DataItemSourceAmalgamationPreference {
 		this.amalgamationPreferenceOrder = amalgamationPreferenceOrder;
 	}
 
+	/**
+	 * Returns a deep copy with DataItemSource instances recreated via createInstanceOfSameType()
+	 * to preserve order and disabled state.
+	 */
+	public DataItemSourceAmalgamationPreference deepCopy() {
+		LinkedList<DataItemSource> copiedOrder = new LinkedList<>();
+		for (DataItemSource source : amalgamationPreferenceOrder) {
+			copiedOrder.add(source.createInstanceOfSameType());
+		}
+		return new DataItemSourceAmalgamationPreference(copiedOrder);
+	}
+
 	public void setAmalgamationPreferenceOrder(SiteParsingProfileItem[] parsingProfileItems) {
 		if (parsingProfileItems != null) {
 			amalgamationPreferenceOrder = new LinkedList<>();

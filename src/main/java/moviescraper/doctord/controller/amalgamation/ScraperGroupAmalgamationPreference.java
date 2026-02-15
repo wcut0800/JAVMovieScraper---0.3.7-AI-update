@@ -119,4 +119,18 @@ public class ScraperGroupAmalgamationPreference {
 		return scraperGroupName;
 	}
 
+	/**
+	 * Returns a deep copy of this preference, for use when reverting cancel in AmalgamationSettingsDialog.
+	 */
+	public ScraperGroupAmalgamationPreference deepCopy() {
+		ScraperGroupAmalgamationPreference copy = new ScraperGroupAmalgamationPreference(scraperGroupName, overallOrdering.deepCopy());
+		if (customAmalgamationOrderPerField != null) {
+			copy.customAmalgamationOrderPerField = new Hashtable<>();
+			for (Map.Entry<String, DataItemSourceAmalgamationPreference> e : customAmalgamationOrderPerField.entrySet()) {
+				copy.customAmalgamationOrderPerField.put(e.getKey(), e.getValue().deepCopy());
+			}
+		}
+		return copy;
+	}
+
 }

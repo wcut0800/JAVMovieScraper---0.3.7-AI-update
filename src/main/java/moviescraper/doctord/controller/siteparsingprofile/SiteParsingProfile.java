@@ -222,8 +222,8 @@ public abstract class SiteParsingProfile implements DataItemSource {
 		}
 
 		// American web format: "12.03 [Kink.com, Site.com] Actor One, Actor Two (Scene Title) [tags].mp4"
-		// Extract actors between ] and ( for search matching
-		Matcher americanMatcher = Pattern.compile("\\]\\s*([^[(]+?)\\s*\\(").matcher(fileNameNoExtension);
+		// Only match when first bracket contains comma (site list) to avoid breaking JAV filenames like [Uncensored] ABC-123 (2024)
+		Matcher americanMatcher = Pattern.compile("\\[[^\\]]*,[^\\]]*\\]\\s*([^[(]+?)\\s*\\(").matcher(fileNameNoExtension);
 		if (americanMatcher.find()) {
 			String extracted = americanMatcher.group(1).trim();
 			if (!extracted.isEmpty()) {

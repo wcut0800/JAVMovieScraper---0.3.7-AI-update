@@ -214,6 +214,18 @@ public class AllAmalgamationOrderingPreferences {
 		initializeDefaultPreferences(saveToDisk);
 	}
 
+	/**
+	 * Returns a deep copy for use when reverting cancel in AmalgamationSettingsDialog.
+	 * Uses manual copy instead of json-io to avoid Enum deserialization issues on Java 17+.
+	 */
+	public AllAmalgamationOrderingPreferences deepCopy() {
+		AllAmalgamationOrderingPreferences copy = new AllAmalgamationOrderingPreferences();
+		for (Map.Entry<ScraperGroupName, ScraperGroupAmalgamationPreference> e : allAmalgamationOrderingPreferences.entrySet()) {
+			copy.allAmalgamationOrderingPreferences.put(e.getKey(), e.getValue().deepCopy());
+		}
+		return copy;
+	}
+
 	public Map<ScraperGroupName, ScraperGroupAmalgamationPreference> getAllAmalgamationOrderingPreferences() {
 		return allAmalgamationOrderingPreferences;
 	}
