@@ -1,0 +1,8 @@
+.gradle
+.idea
+build
+AmalgamationSettings.json
+settings.xml
+JAVMovieScraper.iml
+/.*-gradle/
+gradle.properties
